@@ -6,6 +6,7 @@
 // - GITHUB_WEBHOOK_URL: The URL of the github webhook
 // - GITHUB_WEBHOOK_SECRET: The secret of the github webhook
 // - GITHUB_WEBHOOK_ROOM_ID: The room ID of the room to send the notifications to
+import require from require
 
 require('dotenv').config();
 const express = require('express');
