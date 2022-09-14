@@ -6,8 +6,19 @@
 // - GITHUB_WEBHOOK_URL: The URL of the github webhook
 // - GITHUB_WEBHOOK_SECRET: The secret of the github webhook
 // - GITHUB_WEBHOOK_ROOM_ID: The room ID of the room to send the notifications to
-import require from require
-
+/*
+import express from 'express';
+import { Hmac } from 'crypto'
+// import { MatrixClient, SimpleFsStorageProvider, AutojoinRoomsMixin } from 'matrix-bot-sdk';
+import dotenv from 'dotenv'
+import require from 'requirejs'
+const {
+  MatrixClient,
+  SimpleFsStorageProvider,
+  AutojoinRoomsMixin
+} = require('matrix-bot-sdk');
+*/
+import require from 'requirejs'
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
