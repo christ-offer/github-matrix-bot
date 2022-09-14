@@ -26,60 +26,42 @@ const crypto = require('crypto');
 const {
   MatrixClient,
   SimpleFsStorageProvider,
-  AutojoinRoomsMixin
+  AutojoinRoomsMixin,
+  RichReply
 } = require('matrix-bot-sdk');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+const roomId = "!phxFsseDFtRienTcza:matrix.org"
 const homeserverUrl = process.env.MATRIX_SERVER_NAME; // make sure to update this with your url
 const accessToken = process.env.MATRIX_ACCESS_TOKEN;
 const storage = new SimpleFsStorageProvider("github-matrix-bot.json");
 const client = new MatrixClient(homeserverUrl, accessToken, storage);
 AutojoinRoomsMixin.setupOnClient(client);
 
-app.post('/webhook', (req, res) => {
-    const signature = req.headers['x-hub-signature'];
-    const event = req.headers['x-github-event'];
-    const id = req.headers['x-github-delivery'];
-    const body = JSON.stringify(req.body);
+client.on("room.message", handleCommand);
 
-    if (!signature) {
-        console.error('No X-Hub-Signature found on request');
-        res.status(400).send('No X-Hub-Signature found on request');
-        return;
-    }
+async function handleCommand(roomId, event) {
+    // Don't handle events that don't have contents (they were probably redacted)
+    if (!event["content"]) return;
 
-    if (!event) {
-        console.error('No X-Github-Event found on request');
-        res.status(400).send('No X-Github-Event found on request');
-        return;
-    }
+    // Don't handle non-text events
+    if (event["content"]["msgtype"] !== "m.text") return;
 
-    if (!id) {
-        console.error('No X-Github-Delivery found on request');
-        res.status(400).send('No X-Github-Delivery found on request');
-        return;
-    }
+    // We never send `m.text` messages so this isn't required, however this is
+    // how you would filter out events sent by the bot itself.
+    if (event["sender"] === await client.getUserId()) return;
 
-    const hmac = crypto.createHmac('sha1', process.env.GITHUB_SECRET);
-    const digest = Buffer.from('sha1=' + hmac.update(body).digest('hex'), 'utf8');
-    const checksum = Buffer.from(signature, 'utf8');
+    // Make sure that the event looks like a command we're expecting
+    const body = event["content"]["body"];
+    if (!body || !body.startsWith("!hello")) return;
 
-    if (checksum.length !== digest.length || !crypto.timingSafeEqual(digest, checksum)) {
-        console.error(`Request body digest (${digest}) did not match X-Hub-Signature (${checksum})`);
-        res.status(400).send(`Request body digest (${digest}) did not match X-Hub-Signature (${checksum})`);
-        return;
-    }
+    // If we've reached this point, we can safely execute the command. We'll
+    // send a reply to the user's command saying "Hello World!".
+    const replyBody = "Hello World!"; // we don't have any special styling to do.
+    const reply = RichReply.createFor(roomId, event, replyBody, replyBody);
+    reply["msgtype"] = "m.notice";
+    client.sendMessage(roomId, reply);
+}
 
-    console.log(`${event} event received`);
-    res.status(200).send(`${event} event received`);
-});
-
-client.start().then(() => {
-  app.listen(process.env.GITHUB_WEBHOOK_URL, () => console.log(`Github Matrix Bot listening on port ${port}!`));
-  client.sendMessage(process.env.GITHUB_WEBHOOK_ROOM_ID, {
-    msgtype: 'm.text',
-    body: "hello dumbass"
-  })
-});
+client.start().then(() => { console.log('matrix bot is running')});

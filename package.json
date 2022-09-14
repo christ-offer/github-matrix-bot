@@ -4,6 +4,7 @@
   "description": "",
   "main": "matrix_github.js",
   "scripts": {
+    "start": "node matrix_github.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
