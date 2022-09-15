@@ -1,4 +1,4 @@
-# fly.toml file generated for matrix-bot on 2022-09-14T21:16:02+02:00
+# fly.toml file generated for matrix-bot on 2022-09-14T22:28:20+02:00
 
 app = "matrix-bot"
 kill_signal = "SIGINT"
