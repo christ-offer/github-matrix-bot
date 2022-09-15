@@ -12,7 +12,14 @@ const {
 } = require('matrix-bot-sdk');
 
 const app = express();
+/* WIP Webhooks
+app.use(bodyParser.json());
 
+app.post('/', (request, response) => {
+    const { body } = request;
+    console.log(body);
+});
+*/
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
